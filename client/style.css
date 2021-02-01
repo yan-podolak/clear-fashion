@@ -1,0 +1,42 @@
+h1
+{
+    text-align: center;
+    color:blue;
+    font-family: Helvetica;
+}
+h2
+{
+    color:blue;
+    font-family: Helvetica;
+}
+.options
+{
+    border: 3px #658adb solid;
+    box-sizing: content-box;  
+    width: 350px;
+    height: 80px;
+    padding: 15px; 
+    background-color: rgb(101, 138, 219,0.2);
+
+}
+*
+{
+    font-family: Helvetica;
+}
+.product {
+    width: 500px;
+    border: 5px solid #658adb ;
+    border-radius: .5em;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+  }
+.item {
+    text-align: center;
+    width: 100px;
+    padding: 10px;
+    background-color: rgb(101, 138, 219,0.2);
+    border: 2px solid rgb(101, 138, 219,0.2);
+    display: inline-block;
+    vertical-align: middle;
+  }

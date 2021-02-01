@@ -4,12 +4,25 @@
 // current products on the page
 let currentProducts = [];
 let currentPagination = {};
+let currentBrandFilter = "";
+let reasonableprice = false;
+let recentlyreleased = false;
+let currentfilter = "price-asc"
 
-// inititiqte selectors
+// inititiate selectors
 const selectShow = document.querySelector('#show-select');
 const selectPage = document.querySelector('#page-select');
 const sectionProducts = document.querySelector('#products');
 const spanNbProducts = document.querySelector('#nbProducts');
+const selectBrand = document.querySelector('#brand-select');
+const filterprice = document.querySelector('#filter-price');
+const filterreleased = document.querySelector('#filter-released');
+const filter = document.querySelector('#sort-select');
+const spanNbNewProducts = document.querySelector('#nbNewProducts');
+const spanP50 = document.querySelector('#p50');
+const spanP90 = document.querySelector('#p90');
+const spanP95 = document.querySelector('#p95');
+const spanLastReleasedDate = document.querySelector('#lastReleasedDate');
 
 /**
  * Set global value
@@ -46,6 +59,7 @@ const fetchProducts = async (page = 1, size = 12) => {
   }
 };
 
+
 /**
  * Render list of products
  * @param  {Array} products
@@ -53,13 +67,48 @@ const fetchProducts = async (page = 1, size = 12) => {
 const renderProducts = products => {
   const fragment = document.createDocumentFragment();
   const div = document.createElement('div');
+
+  if(selectBrand.selectedIndex!=0 && currentBrandFilter!=""){
+    products = products.filter(brand => brand.brand==brandlist[selectBrand.selectedIndex-1])
+  }
+
+  if(reasonableprice){
+    products = products.filter(product => product.price <= 50);
+  }
+
+  if(recentlyreleased){
+    let today = Date.now();
+    products = products.filter(product => (Math.ceil(Math.abs(today - new Date(product.released))/(1000*60*60*24))<=15));
+  }
+
+  if(currentfilter == "price-asc"){
+    products = products.sort(function (product1, product2) {
+      return product1.price - product2.price;
+    });
+  }
+  
+  if(currentfilter == "price-desc"){
+    products = products.sort(function (product1, product2) {
+      return product2.price - product1.price;
+    });
+  }
+
+  if(currentfilter == "date-asc"){
+    products = products.sort((a, b) => new Date(b.released) > new Date(a.released) ? 1: -1)
+  }
+
+  if(currentfilter == "date-desc"){
+    products = products.sort((a, b) => new Date(b.released) < new Date(a.released) ? 1: -1)
+  }
+
   const template = products
     .map(product => {
       return `
       <div class="product" id=${product.uuid}>
-        <span>${product.brand}</span>
-        <a href="${product.link}">${product.name}</a>
-        <span>${product.price}</span>
+        <span class="item">${product.brand}</span>
+        <a class="item" href="${product.link}" target="_blank">${product.name}</a>
+        <span class="item">${product.price}€</span>
+        <span class = "item">${product.released}</span>
       </div>
     `;
     })
@@ -90,16 +139,47 @@ const renderPagination = pagination => {
  * Render page selector
  * @param  {Object} pagination
  */
-const renderIndicators = pagination => {
+const renderIndicators = (pagination,products) => {
   const {count} = pagination;
 
   spanNbProducts.innerHTML = count;
+
+  let today = Date.now();
+  let newcount = 0;
+  products.forEach(product => {
+    if(Math.ceil(Math.abs(today - new Date(product.released))/(1000*60*60*24))<=15){
+      newcount +=1;
+    }
+  });
+  spanNbNewProducts.innerHTML = newcount;
+
+  var l = products.length;
+  var p50 = l*0.5;
+  p50 = Math.round(p50);
+  spanP50.innerHTML = products[p50].price;
+
+  var p90 = l*0.9;
+  p90 = Math.round(p90);
+  spanP90.innerHTML = products[p90].price;
+
+  var p95 = l*0.95;
+  p95 = Math.round(p95);
+  spanP95.innerHTML = products[p95].price;
+
+  var last = new Date('2000-01-01');
+  products.forEach(product => {
+    if(new Date(product.released) - last > 0){
+      last = new Date(product.released);
+    }
+  });
+  spanLastReleasedDate.innerHTML = last.getFullYear()+"-"+last.getMonth()+1+"-"+last.getDate();
+
 };
 
 const render = (products, pagination) => {
   renderProducts(products);
   renderPagination(pagination);
-  renderIndicators(pagination);
+  renderIndicators(pagination,products);
 };
 
 /**
@@ -116,8 +196,44 @@ selectShow.addEventListener('change', event => {
     .then(() => render(currentProducts, currentPagination));
 });
 
+selectPage.addEventListener('change', event => {
+  fetchProducts(parseInt(event.target.value),selectShow.value)
+    .then(setCurrentProducts)
+    .then(() => render(currentProducts, currentPagination));
+});
+
+selectBrand.addEventListener('change', function() {
+  currentBrandFilter = this.value;
+  render(currentProducts, currentPagination)
+}, false);
+
+filterprice.addEventListener('change', function () {
+  reasonableprice = this.checked;
+  render(currentProducts, currentPagination)
+}, false);
+
+filterreleased.addEventListener('change', function () {
+  recentlyreleased = this.checked;
+  render(currentProducts, currentPagination)
+}, false);
+
+filter.addEventListener('change', function () {
+  currentfilter = this.value;
+  console.log(currentfilter);
+  render(currentProducts, currentPagination)
+}, false);
+
+const renderBrands = brands => {
+  var options = `<option value="Tout">Tout</option>`
+  brandlist.forEach(product => {
+  options +=`<option value="${product}">${product}</option>`
+  })
+  selectBrand.innerHTML = options;
+  selectBrand.selectedIndex = currentBrandFilter;
+};
+
 document.addEventListener('DOMContentLoaded', () =>
   fetchProducts()
     .then(setCurrentProducts)
-    .then(() => render(currentProducts, currentPagination))
+    .then(() => render(currentProducts, currentPagination)).then(renderBrands)
 );
