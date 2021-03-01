@@ -1,21 +1,35 @@
 /* eslint-disable no-console, no-process-exit */
-const dedicatedbrand = require('./sources/dedicatedbrand');
+const dedicatedbrand = require('./sources/dedicatedbrand');   //'https://www.dedicatedbrand.com/en/men/news' -> 'https://www.dedicatedbrand.com/en/loadfilter' all products in here
+const mudjeansbrand = require('./sources/MudJeansbrand');     //'https://mudjeans.eu/collections/men'
+const adresseparisbrand = require('./sources/AdresseParisbrand');   //'https://adresse.paris/630-toute-la-collection' --> une page avec tous les produits
 
-async function sandbox (eshop = 'https://www.dedicatedbrand.com/en/men/news') {
+const allproducts = [];
+
+async function sandbox (eshop,file) {
   try {
     console.log(`🕵️‍♀️  browsing ${eshop} source`);
 
-    const products = await dedicatedbrand.scrape(eshop);
+    const products = await file.scrape(eshop);
 
-    console.log(products);
+    //console.log(products);
+    products.forEach(product => {
+      allproducts.push(product)
+    });
     console.log('done');
-    process.exit(0);
+    allproducts.forEach(element => {
+      console.log(element)
+    });
+    //process.exit(0);
   } catch (e) {
     console.error(e);
     process.exit(1);
   }
 }
 
-const [,, eshop] = process.argv;
+//const [,, eshop] = process.argv;
+let eshop = 'https://adresse.paris/602-nouveautes';
+sandbox(eshop,adresseparisbrand);
+eshop = 'https://www.dedicatedbrand.com/en/men/news';
+sandbox(eshop,dedicatedbrand);
 
-sandbox(eshop);
+
