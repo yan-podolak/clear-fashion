@@ -1,5 +1,6 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
+const {'v4': uuidv4} = require('uuid');
 
 /**
  * Parse webpage e-shop
@@ -22,7 +23,8 @@ const parse = data => {
           .text()
       );
       const brand ='DedicatedBrand'
-      return {name, price,brand};
+      let _id  = uuidv4();
+      return {_id,name, price,brand};
     })
     .get();
 };

@@ -25,14 +25,11 @@ async function sandbox (eshop,file) {
 
       const products = await file[i].scrape(eshop[i]);
 
-      console.log(products);
+      //console.log(products);
       products.forEach(product => {
         allproducts.push(product)
       });
     }
-    
-
-
 
     const collection = db.collection('products');
     const result = collection.insertMany(allproducts);
