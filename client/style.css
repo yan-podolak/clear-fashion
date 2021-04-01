@@ -12,12 +12,13 @@ h2
 .options
 {
     border: 3px #658adb solid;
+    border-radius: .5em;
     box-sizing: content-box;  
-    width: 350px;
-    height: 80px;
+    width: 590px;
     padding: 15px; 
     background-color: rgb(101, 138, 219,0.2);
-
+    margin: 0 auto;
+    text-align: center;
 }
 *
 {
@@ -39,4 +40,17 @@ h2
     border: 2px solid rgb(101, 138, 219,0.2);
     display: inline-block;
     vertical-align: middle;
+  }
+  #products{
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .product{
+    margin: 0 auto;
+  }
+  #indicators{
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
