@@ -33,6 +33,7 @@ app.get("/search/:limit?/:page?/:brand?/:price?", (request, response) => {
   if (!limit){limit = 12}else{limit = parseInt(limit)}
   if (!brand){brand = "all"}
   if (!price){price = 100000}else{price = parseInt(price)}
+  if (!page){page=1}
   console.log(limit,page,brand,price)
   if(brand !=="all"){
     db.findSorted({ "price": {$lt:price}, brand:brand},{"price":1},limit,page).then(res=>response.send(res));
