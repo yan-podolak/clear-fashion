@@ -43,7 +43,7 @@ const setCurrentProducts = ({result, meta}) => {
 const fetchProducts = async (page = 1, size = 12) => {
   try {
     const response = await fetch(
-      `https://clear-fashion-ten.vercel.app/?page=${page}&size=${size}`
+      `https://clear-fashion-ten.vercel.app/search?page=${page}&limit=${size}`
     );
     const body = await response.json();
 

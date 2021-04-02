@@ -73,11 +73,12 @@ module.exports.find = async query => {
   }
 };
 
-module.exports.findSorted = async (query,sort,limit) => {
+module.exports.findSorted = async (query,sort,limit,page) => {
   try {
+    page = limit * (page - 1)
     const db = await getDB();
     const collection = db.collection(MONGODB_COLLECTION);
-    const result = await collection.find(query).sort(sort).limit(limit).toArray();
+    const result = await collection.find(query).sort(sort).skip(page).limit(limit).toArray();
 
     return result;
   } catch (error) {
