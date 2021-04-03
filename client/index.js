@@ -61,7 +61,7 @@ console.log("number of products",number_of_products);
 // 1. Create a variable and assign it the list of brands name only
 // 2. Log the variable
 // 3. Log how many brands we have
-const brandlist = [];
+let brandlist = [];
 marketplace.forEach(element => {
   if(!brandlist.includes(element.brand)){
     brandlist.push(element.brand);

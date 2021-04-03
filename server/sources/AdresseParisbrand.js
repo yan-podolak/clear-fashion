@@ -27,7 +27,13 @@ const parse = data => {
         .text()
         .replace(/\s/g,'');
       let _id  = uuidv4();
-      return {_id,name, price, brand};
+      const link = $(element)
+      .find('.product_img_link')
+      .attr('href')
+      const photo = $(element)
+      .find('.replace-2x.img-responsive.lazy.img_0.img_1e')
+      .attr('data-original')
+      return {_id,name, price, brand,link,photo};
     })
     .get();
 };

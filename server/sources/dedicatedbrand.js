@@ -22,9 +22,15 @@ const parse = data => {
           .find('.productList-price')
           .text()
       );
+      const link = $(element)
+      .find('.productList-link')
+      .attr('href')
       const brand ='DedicatedBrand'
       let _id  = uuidv4();
-      return {_id,name, price,brand};
+      const photo = $(element)
+      .find('.productList-image img')
+      .attr('src')
+      return {_id,name, price,brand,link,photo};
     })
     .get();
 };

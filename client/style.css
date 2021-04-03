@@ -34,7 +34,7 @@ h2
   }
 .item {
     text-align: center;
-    width: 100px;
+    /*width: 100px;*/
     padding: 10px;
     background-color: rgb(101, 138, 219,0.2);
     border: 2px solid rgb(101, 138, 219,0.2);
@@ -53,4 +53,7 @@ h2
     align-items: center;
     justify-content: center;
     text-align: center;
+  }
+  img {
+    max-height: 200px;
   }

@@ -1,13 +1,16 @@
 // Invoking strict mode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode#invoking_strict_mode
 'use strict';
 
+brandlist = ["ADRESSE","DedicatedBrand"];
+let total_pages = 1;
+
 // current products on the page
 let currentProducts = [];
 let currentPagination = {};
 let currentBrandFilter = "";
 let reasonableprice = false;
-let recentlyreleased = false;
-let currentfilter = "price-asc"
+//let recentlyreleased = false;
+let currentfilter = "price-asc";
 
 // inititiate selectors
 const selectShow = document.querySelector('#show-select');
@@ -16,22 +19,21 @@ const sectionProducts = document.querySelector('#products');
 const spanNbProducts = document.querySelector('#nbProducts');
 const selectBrand = document.querySelector('#brand-select');
 const filterprice = document.querySelector('#filter-price');
-const filterreleased = document.querySelector('#filter-released');
+//const filterreleased = document.querySelector('#filter-released');
 const filter = document.querySelector('#sort-select');
-const spanNbNewProducts = document.querySelector('#nbNewProducts');
+//const spanNbNewProducts = document.querySelector('#nbNewProducts');
 const spanP50 = document.querySelector('#p50');
 const spanP90 = document.querySelector('#p90');
 const spanP95 = document.querySelector('#p95');
-const spanLastReleasedDate = document.querySelector('#lastReleasedDate');
 
 /**
  * Set global value
  * @param {Array} result - products to display
  * @param {Object} meta - pagination meta info
  */
-const setCurrentProducts = ({result, meta}) => {
-  currentProducts = result;
-  currentPagination = meta;
+const setCurrentProducts = (result) => {
+  currentProducts = result.body;
+  currentPagination = result.currentPagination;
 };
 
 /**
@@ -47,15 +49,24 @@ const fetchProducts = async (page = 1, size = 12) => {
     );
     const body = await response.json();
 
+    const response2 = await fetch(
+      `https://clear-fashion-ten.vercel.app/search?limit=2000`
+    );
+    const body2 = await response2.json();
+    total_pages = Math.round(body2.length/size);
+    currentPagination = {currentPage: page, pageCount: total_pages, pageSize:size, count:body2.length};
+
+    /*
     if (body.success !== true) {
       console.error(body);
+      console.log(currentProducts, currentPagination)
       return {currentProducts, currentPagination};
-    }
+    }*/
 
-    return body.data;
+    return {body, currentPagination};
   } catch (error) {
     console.error(error);
-    return {currentProducts, currentPagination};
+    return {body, currentPagination};
   }
 };
 
@@ -75,11 +86,11 @@ const renderProducts = products => {
   if(reasonableprice){
     products = products.filter(product => product.price <= 50);
   }
-
+/*
   if(recentlyreleased){
     let today = Date.now();
     products = products.filter(product => (Math.ceil(Math.abs(today - new Date(product.released))/(1000*60*60*24))<=15));
-  }
+  }*/
 
   if(currentfilter == "price-asc"){
     products = products.sort(function (product1, product2) {
@@ -108,7 +119,7 @@ const renderProducts = products => {
         <span class="item">${product.brand}</span>
         <a class="item" href="${product.link}" target="_blank">${product.name}</a>
         <span class="item">${product.price}€</span>
-        <span class = "item">${product.released}</span>
+        <span class = "item"><img src='${product.photo}'></span>
       </div>
     `;
     })
@@ -127,7 +138,7 @@ const renderProducts = products => {
 const renderPagination = pagination => {
   const {currentPage, pageCount} = pagination;
   const options = Array.from(
-    {'length': pageCount},
+    {'length': total_pages},
     (value, index) => `<option value="${index + 1}">${index + 1}</option>`
   ).join('');
 
@@ -140,10 +151,9 @@ const renderPagination = pagination => {
  * @param  {Object} pagination
  */
 const renderIndicators = (pagination,products) => {
-  const {count} = pagination;
 
-  spanNbProducts.innerHTML = count;
-
+  spanNbProducts.innerHTML = currentPagination.count;
+  /*
   let today = Date.now();
   let newcount = 0;
   products.forEach(product => {
@@ -151,7 +161,7 @@ const renderIndicators = (pagination,products) => {
       newcount +=1;
     }
   });
-  spanNbNewProducts.innerHTML = newcount;
+  spanNbNewProducts.innerHTML = newcount;*/
 
   var l = products.length;
   var p50 = l*0.5;
@@ -165,14 +175,14 @@ const renderIndicators = (pagination,products) => {
   var p95 = l*0.95;
   p95 = Math.round(p95);
   spanP95.innerHTML = products[p95].price;
-
+  /*
   var last = new Date('2000-01-01');
   products.forEach(product => {
     if(new Date(product.released) - last > 0){
       last = new Date(product.released);
     }
-  });
-  spanLastReleasedDate.innerHTML = last.getFullYear()+"-"+last.getMonth()+1+"-"+last.getDate();
+  });*/
+  //spanLastReleasedDate.innerHTML = last.getFullYear()+"-"+last.getMonth()+1+"-"+last.getDate();
 
 };
 
@@ -211,11 +221,11 @@ filterprice.addEventListener('change', function () {
   reasonableprice = this.checked;
   render(currentProducts, currentPagination)
 }, false);
-
+/*
 filterreleased.addEventListener('change', function () {
   recentlyreleased = this.checked;
   render(currentProducts, currentPagination)
-}, false);
+}, false);*/
 
 filter.addEventListener('change', function () {
   currentfilter = this.value;
@@ -234,6 +244,6 @@ const renderBrands = brands => {
 
 document.addEventListener('DOMContentLoaded', () =>
   fetchProducts()
-    .then(setCurrentProducts)
+    .then((p)=>setCurrentProducts(p))
     .then(() => render(currentProducts, currentPagination)).then(renderBrands)
 );
